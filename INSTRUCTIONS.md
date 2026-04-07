@@ -7,40 +7,91 @@
 
 ---
 
-## 2. 프로젝트 구조
+## 2. ⚠️ 하네스 생성 격리 규칙 (CRITICAL)
+
+**하네스 생성 요청이 들어오면 반드시 아래 규칙을 따른다.**
+
+### 2.1 핵심 원칙
+> 루트의 기본 파일은 절대 건드리지 않는다.
+> 요청한 하네스 이름으로 독립 폴더를 만들고, 모든 작업은 그 안에서만 한다.
+
+### 2.2 금지 사항
+| 금지 행위 | 이유 |
+|-----------|------|
+| 루트 `AGENTS.md` 수정 | 하네스 시스템 전체 컨텍스트 오염 |
+| 루트 `rules/` 에 하네스 규칙 추가 | 프로젝트 자체 규칙과 혼용 금지 |
+| 루트 `INSTRUCTIONS.md` 수정 | 이 지침서는 시스템 공통 문서 |
+| 루트 스크립트(`lint.sh` 등) 수정 | 모든 하네스가 공유하는 기반 도구 |
+
+### 2.3 올바른 하네스 생성 절차
 
 ```
-harness-project/
-├── AGENTS.md              ← 컨텍스트 파일 (60줄 이하, 항상 적용)
-├── INSTRUCTIONS.md        ← 이 지침서
+요청: "{이름} 하네스 만들어줘"
+  │
+  └─→ 루트에 {이름}/ 폴더 생성
+        │
+        ├── {이름}/AGENTS.md           ← 하네스 전용 컨텍스트
+        ├── {이름}/README.md           ← 설치 방법 및 개요
+        ├── {이름}/hooks/
+        │   └── pre-commit             ← 루트 hooks/pre-commit 복사
+        ├── {이름}/scripts/
+        │   ├── setup.sh               ← 루트 scripts/setup.sh 기반 커스터마이징
+        │   ├── lint.sh                ← 루트 scripts/lint.sh 복사
+        │   └── garbage-collect.sh     ← 루트 scripts/garbage-collect.sh 복사
+        └── {이름}/rules/
+            ├── *.md                   ← 하네스 전용 규칙 문서
+            └── *.sh                   ← 하네스 전용 검사 스크립트
+```
+
+### 2.4 기존 하네스 폴더 목록
+| 폴더명 | 용도 | 생성일 |
+|--------|------|--------|
+| `game-hiring-harness/` | 게임 프로그래머 채용 3인격 합의 시스템 | 2026-04-07 |
+
+> 새 하네스 생성 시 위 표에 항목을 추가한다.
+
+---
+
+## 3. 프로젝트 구조
+
+```
+harness-Auto-Create/          ← 루트 (절대 수정 금지 영역)
+├── AGENTS.md                 ← 시스템 공통 컨텍스트 (60줄 이하)
+├── INSTRUCTIONS.md           ← 이 지침서
 ├── hooks/
-│   └── pre-commit         ← 커밋 전 자동 실행 훅
+│   └── pre-commit            ← 공통 커밋 훅 (원본)
 ├── scripts/
-│   ├── setup.sh           ← 최초 설정 (훅 설치, 도구 확인)
-│   ├── lint.sh            ← 규칙 기반 린터 (자동교정 포함)
-│   └── garbage-collect.sh ← 죽은 코드/문서 불일치/미사용 규칙 탐지
-└── rules/                 ← 실패에서 탄생한 규칙들
-    ├── README.md          ← 규칙 작성법 안내
-    ├── {규칙이름}.sh      ← 자동 검사 스크립트
-    └── {규칙이름}.md      ← 규칙 설명 문서
+│   ├── setup.sh              ← 공통 설정 스크립트 (원본)
+│   ├── lint.sh               ← 공통 린터 (원본)
+│   └── garbage-collect.sh    ← 공통 가비지 컬렉터 (원본)
+├── rules/                    ← 이 시스템 자체의 규칙만 관리
+│   ├── no-print-debug.sh
+│   └── no-print-debug.md
+│
+└── {하네스이름}/             ← 하네스별 독립 폴더 (여기서만 작업)
+    ├── AGENTS.md
+    ├── README.md
+    ├── hooks/
+    ├── scripts/
+    └── rules/
 ```
 
 ---
 
-## 3. 초기 설정
+## 4. 초기 설정
 
-### 3.1 대상 프로젝트에 하네스 적용
+### 4.1 대상 프로젝트에 하네스 적용
 
 ```bash
-# 1. 하네스 파일을 대상 프로젝트로 복사
+# 1. 원하는 하네스 폴더를 대상 프로젝트로 복사
 cd your-project
-cp -r harness-project/* .
+cp -r harness-Auto-Create/{하네스이름}/* .
 
 # 2. 설정 스크립트 실행
 bash scripts/setup.sh
 ```
 
-### 3.2 setup.sh가 수행하는 작업
+### 4.2 setup.sh가 수행하는 작업
 
 | 단계 | 내용 |
 |------|------|
@@ -49,15 +100,15 @@ bash scripts/setup.sh
 | rules 준비 | `rules/` 디렉토리 및 `README.md` 생성 |
 | 도구 확인 | `autoflake`, `vulture`, `ruff` 설치 여부 표시 |
 
-### 3.3 권장 도구 설치
+### 4.3 권장 도구 설치
 
 ```bash
-pip install autoflake vulture ruff
+pip install autoflake vulture ruff --break-system-packages
 ```
 
 ---
 
-## 4. 작동 흐름
+## 5. 작동 흐름
 
 ```
 코드 변경 → git commit 실행
@@ -82,9 +133,9 @@ pip install autoflake vulture ruff
 
 ---
 
-## 5. 린터 (lint.sh) 상세
+## 6. 린터 (lint.sh) 상세
 
-### 5.1 실행 옵션
+### 6.1 실행 옵션
 
 ```bash
 ./scripts/lint.sh           # 검사만 수행
@@ -93,7 +144,7 @@ pip install autoflake vulture ruff
 ./scripts/lint.sh --fix --quiet  # pre-commit에서 사용하는 기본 조합
 ```
 
-### 5.2 내장 검사 항목
+### 6.2 내장 검사 항목
 
 | 검사 | 대상 | 도구 | 자동 교정 |
 |------|------|------|-----------|
@@ -101,14 +152,14 @@ pip install autoflake vulture ruff
 | 죽은 코드 (함수/변수) | `*.py` | vulture (신뢰도 80%+) | X (경고만) |
 | AGENTS.md 60줄 제한 | `AGENTS.md` | wc | X |
 
-### 5.3 커스텀 규칙 실행
+### 6.3 커스텀 규칙 실행
 
 `rules/` 디렉토리의 모든 `.sh` 파일을 순서대로 실행한다.
 각 규칙 스크립트는 첫 번째 인자로 `true/false` (자동교정 모드)를 받는다.
 
 ---
 
-## 6. 가비지 컬렉션 (garbage-collect.sh) 상세
+## 7. 가비지 컬렉션 (garbage-collect.sh) 상세
 
 | 검사 | 설명 |
 |------|------|
@@ -119,18 +170,18 @@ pip install autoflake vulture ruff
 
 ---
 
-## 7. 새 규칙 추가 지침 (핵심)
+## 8. 새 규칙 추가 지침 (핵심)
 
 **규칙은 반드시 실제 실패 경험에서만 생성한다.**
 
-### 7.1 규칙 추가 절차
+### 8.1 규칙 추가 절차
 
 1. **실패 발생** — 버그, CI 실패, 프로덕션 장애 등
-2. **규칙 스크립트 작성** — `rules/{규칙이름}.sh`
-3. **규칙 문서 작성** — `rules/{규칙이름}.md`
-4. **실패 로그 기록** — `AGENTS.md` 하단에 한 줄 추가
+2. **규칙 스크립트 작성** — `{하네스폴더}/rules/{규칙이름}.sh`
+3. **규칙 문서 작성** — `{하네스폴더}/rules/{규칙이름}.md`
+4. **실패 로그 기록** — `{하네스폴더}/AGENTS.md` 하단에 한 줄 추가
 
-### 7.2 규칙 스크립트 템플릿 (`rules/{이름}.sh`)
+### 8.2 규칙 스크립트 템플릿
 
 ```bash
 #!/bin/bash
@@ -142,11 +193,9 @@ FIX=${1:-false}
 FOUND=0
 
 while IFS= read -r file; do
-  # 패턴 탐지 로직
   matches=$(grep -n '{탐지할 패턴}' "$file" 2>/dev/null || true)
   if [ -n "$matches" ]; then
     if [ "$FIX" = "true" ]; then
-      # 자동 교정 로직
       echo "FIXED {규칙이름}: $file"
     else
       echo "ERROR {규칙이름}: $file"
@@ -160,37 +209,9 @@ done < <(find . -name "*.py" -not -path "./.venv/*" -not -path "./node_modules/*
 exit 0
 ```
 
-### 7.3 규칙 문서 템플릿 (`rules/{이름}.md`)
-
-```markdown
-# {규칙이름}
-
-## 발생일
-{YYYY-MM-DD}
-
-## 실패 상황
-{어떤 실패가 발생했는지 구체적으로 기술}
-
-## 규칙
-- {금지/강제 사항}
-- {대안이 있다면 기술}
-
-## 자동 교정
-{--fix 모드에서 어떻게 교정하는지, 또는 "자동 교정 불가"}
-
-## 관련 파일
-- `rules/{규칙이름}.sh` — 자동 검사 스크립트
-```
-
-### 7.4 AGENTS.md 실패 로그 형식
-
-```
-<!-- YYYY-MM-DD | 실패 요약 | rules/{규칙이름}.md 추가 -->
-```
-
 ---
 
-## 8. AGENTS.md 관리 규칙
+## 9. AGENTS.md 관리 규칙
 
 | 규칙 | 설명 |
 |------|------|
@@ -201,7 +222,7 @@ exit 0
 
 ---
 
-## 9. 출력 원칙
+## 10. 출력 원칙
 
 - **성공은 조용히** — 통과한 4000줄의 결과는 출력하지 않는다
 - **실패만 시끄럽게** — 에러/경고가 있는 줄만 표시한다
@@ -215,35 +236,12 @@ exit 0
 
 ---
 
-## 10. 예시: 기존 규칙 — no-print-debug
-
-| 항목 | 내용 |
-|------|------|
-| 발생일 | 2026-04-06 |
-| 원인 | `print("debug ...")` 남긴 채 배포 → 프로덕션 로그 오염 |
-| 탐지 패턴 | `print("debug`, `print("test`, `print("TODO`, `print("FIXME`, `print("xxx` |
-| 자동 교정 | 해당 라인을 `# REMOVED:` 주석으로 변환 |
-| 권장 대안 | `logging` 모듈 사용 |
-
----
-
-## 11. 운영 체크리스트
-
-커밋 전 자동으로 수행되지만, 수동 점검이 필요한 경우:
-
-- [ ] 문서와 코드가 일치하는가?
-- [ ] 규칙을 위반한 코드가 남아있지 않은가?
-- [ ] 사용하지 않는 import/변수/함수가 있는가?
-- [ ] 새로운 실패가 발생했다면 규칙으로 추가했는가?
-- [ ] AGENTS.md가 60줄을 넘지 않는가?
-
----
-
-## 12. 핵심 요약
+## 11. 핵심 요약
 
 ```
 1. 처음부터 완벽할 필요 없다
 2. 실패할 때마다 규칙 한 줄 추가
 3. 시스템이 스스로 진화한다
 4. 성공은 조용히, 실패만 시끄럽게
+5. 하네스 생성 = 독립 폴더 생성. 루트는 건드리지 않는다
 ```
