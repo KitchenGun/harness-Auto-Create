@@ -1,63 +1,63 @@
 #!/bin/bash
-# setup.sh — 하네스 초기 설정
-# 훅 설치, 도구 확인, rules 디렉토리 준비
+# setup.sh - Harness initial setup
+# Installs hooks, checks tools, prepares rules directory
 
 set -euo pipefail
 
-echo "⚙️  하네스 프로젝트 설정 중..."
+echo "[SETUP] Harness project setup starting..."
 
-# ── 1. Git 확인 ──
+# --- 1. Git check ---
 if [ ! -d ".git" ]; then
-  echo "git init 실행 중..."
+  echo "Running git init..."
   git init
 fi
 
-# ── 2. pre-commit 훅 설치 ──
+# --- 2. Install pre-commit hook ---
 mkdir -p .git/hooks
 cp hooks/pre-commit .git/hooks/pre-commit
 chmod +x .git/hooks/pre-commit
 chmod +x scripts/*.sh
-echo "✅ pre-commit 훅 설치 완료"
+echo "[OK] pre-commit hook installed"
 
-# ── 3. rules 디렉토리 준비 ──
+# --- 3. Prepare rules directory ---
 mkdir -p rules
 if [ ! -f "rules/README.md" ]; then
   cat > rules/README.md << 'EOF'
-# Rules 디렉토리
+# Rules Directory
 
-실패할 때마다 여기에 규칙을 추가합니다.
+Add rules here whenever a failure occurs.
 
-## 규칙 파일 형식
+## File format
 
-### .md — 사람이 읽는 규칙 설명
-왜 이 규칙이 생겼는지, 어떤 실패에서 왔는지 기록합니다.
+### .md - Human-readable rule description
+Records why this rule was created, what failure triggered it.
 
-### .sh — 린터가 실행하는 자동 검사
-`./scripts/lint.sh`가 이 디렉토리의 모든 .sh를 실행합니다.
-첫 번째 인자가 "true"이면 자동 교정 모드입니다.
+### .sh - Automated check script
+`./scripts/lint.sh` runs all .sh files in this directory.
+First argument "true" enables auto-fix mode.
 
 ```bash
 #!/bin/bash
-# 규칙 스크립트 템플릿
+# Rule script template
 FIX=${1:-false}
-# 검사 로직...
-# 실패 시 exit 1
+# Check logic...
+# exit 1 on failure
 ```
 EOF
-  echo "✅ rules/ 디렉토리 준비 완료"
+  echo "[OK] rules/ directory prepared"
 fi
 
-# ── 4. 도구 확인 (선택) ──
+# --- 4. Tool check (optional) ---
 echo ""
-echo "📦 권장 도구 상태:"
+echo "[TOOLS] Recommended tool status:"
 for tool in autoflake vulture ruff; do
   if command -v "$tool" &>/dev/null; then
-    echo "  ✅ $tool"
+    echo "  [OK] $tool"
   else
-    echo "  ⬜ $tool (없음 — pip install $tool)"
+    echo "  [--] $tool (not found - pip install $tool)"
   fi
 done
 
 echo ""
-echo "🎉 설정 완료! 이제 커밋할 때마다 하네스가 자동 실행됩니다."
-echo "   실패하면 AGENTS.md에 한 줄 추가하고, rules/에 규칙을 넣으세요."
+echo "[DONE] Setup complete! Harness will auto-run on every commit."
+echo "   On failure: add a line to AGENTS.md and a rule to rules/"

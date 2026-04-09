@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash scripts/setup.sh)",
+      "Bash(./scripts/lint.sh)",
+      "Bash(dos2unix scripts/lint.sh scripts/garbage-collect.sh scripts/setup.sh hooks/pre-commit)",
+      "Bash(sed -i 's/\\\\r$//' scripts/lint.sh scripts/garbage-collect.sh scripts/setup.sh hooks/pre-commit)",
+      "Bash(find . -type f \\\\\\( -name \"*.md\" -o -name \"*.sh\" -o -name \"*.py\" -o -name \"*.toml\" \\\\\\) ! -path \"*/.git/*\" -exec grep -Pn '[^\\\\x00-\\\\x7F]' {} +)",
+      "Bash(./scripts/garbage-collect.sh)",
+      "Bash(echo \"--- gc exit: $? ---\")",
+      "Bash(bash -x ./scripts/garbage-collect.sh)",
+      "Bash(echo \"grep -P exit: $?\")",
+      "Bash(echo \"exit: $?\")",
+      "Bash(python3 -c ':*)"
+    ]
+  }
+}
