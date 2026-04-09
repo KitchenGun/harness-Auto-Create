@@ -91,7 +91,16 @@ EOF
   echo "✅ rules/README.md 생성 완료"
 fi
 
-# ── 7. 도구 확인 (선택) ──
+# ── 7. ignore 파일 자동 생성 ──
+echo ""
+if [ -f "scripts/gen-ignore.sh" ]; then
+  chmod +x scripts/gen-ignore.sh
+  bash scripts/gen-ignore.sh
+else
+  echo "⬜ scripts/gen-ignore.sh 없음 — ignore 파일 생성 건너뜀"
+fi
+
+# ── 8. 도구 확인 (선택) ──
 echo ""
 echo "📦 권장 도구 상태:"
 for tool in autoflake vulture ruff; do

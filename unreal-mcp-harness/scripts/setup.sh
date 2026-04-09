@@ -88,7 +88,16 @@ EOF
   echo "[OK] rules/README.md created"
 fi
 
-# --- 7. Tool check (optional) ---
+# --- 7. Generate ignore files ---
+echo ""
+if [ -f "scripts/gen-ignore.sh" ]; then
+  chmod +x scripts/gen-ignore.sh
+  bash scripts/gen-ignore.sh
+else
+  echo "[SKIP] scripts/gen-ignore.sh not found - skipping ignore generation"
+fi
+
+# --- 8. Tool check (optional) ---
 echo ""
 echo "[TOOLS] Recommended tool status:"
 for tool in autoflake vulture ruff; do

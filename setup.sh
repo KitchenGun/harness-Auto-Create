@@ -47,7 +47,16 @@ EOF
   echo "[OK] rules/ directory prepared"
 fi
 
-# --- 4. Tool check (optional) ---
+# --- 4. Generate ignore files ---
+echo ""
+if [ -f "scripts/gen-ignore.sh" ]; then
+  chmod +x scripts/gen-ignore.sh
+  bash scripts/gen-ignore.sh
+else
+  echo "[SKIP] scripts/gen-ignore.sh not found - skipping ignore generation"
+fi
+
+# --- 5. Tool check (optional) ---
 echo ""
 echo "[TOOLS] Recommended tool status:"
 for tool in autoflake vulture ruff; do
@@ -61,3 +70,4 @@ done
 echo ""
 echo "[DONE] Setup complete! Harness will auto-run on every commit."
 echo "   On failure: add a line to AGENTS.md and a rule to rules/"
+echo "   Token tip: edit .claudeignore to reduce context size"
