@@ -70,4 +70,4 @@ done
 echo ""
 echo "[DONE] Setup complete! Harness will auto-run on every commit."
 echo "   On failure: add a line to AGENTS.md and a rule to rules/"
-echo "   Token tip: edit .claudeignore to reduce context size"
+echo "   Token tip: edit .aiignore (or your client-specific ignore file) to reduce context size"

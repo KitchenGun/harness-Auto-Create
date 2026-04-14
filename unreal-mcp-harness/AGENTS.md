@@ -6,7 +6,7 @@ Base: GenOrca/unreal-mcp (fork). Reference: flopperam/unreal-engine-mcp.
 
 ## Architecture
 ```
-Claude Desktop --(stdio)--> Python MCP Server --(TCP:13377)--> UE5 C++ Plugin --> Editor
+MCP Client --(stdio)--> Python MCP Server --(TCP:13377)--> UE5 C++ Plugin --> Editor
 ```
 - **Python MCP Server** (`mcp-server/`): Tool definition, JSON serialization, TCP communication
 - **UE5 C++ Plugin** (`Plugins/UnrealMCP/`): TCP listening, JSON->UE API, GameThread execution

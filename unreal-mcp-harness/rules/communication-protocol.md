@@ -42,7 +42,7 @@
 | 무거운 작업 타임아웃 | 60초 (Blueprint 컴파일 등) |
 | 동시 명령어 | 순차 처리 (UE GameThread 제약) |
 
-## Claude Desktop 설정 (claude_desktop_config.json)
+## MCP 클라이언트 설정 예시
 ```json
 {
     "mcpServers": {

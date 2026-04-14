@@ -3,7 +3,7 @@
 > Unreal Engine MCP Project Development Harness
 
 Harness for developing an MCP server + C++ plugin that controls the UE5 editor
-via natural language from Claude Desktop.
+via natural language from any MCP-compatible client.
 
 ---
 
@@ -66,7 +66,7 @@ cd $TARGET && bash scripts/setup.sh
 ## Project Architecture
 
 ```
-Claude Desktop --(MCP/stdio)--> Python MCP Server --(TCP:13377)--> UE5 C++ Plugin --> Editor
+MCP Client --(MCP/stdio)--> Python MCP Server --(TCP:13377)--> UE5 C++ Plugin --> Editor
 ```
 
 | Component | Path | Role |

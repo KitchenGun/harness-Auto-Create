@@ -1,5 +1,5 @@
 #!/bin/bash
-# gen-ignore.sh — .gitignore & .claudeignore 자동 생성 스크립트
+# gen-ignore.sh — .gitignore & AI 컨텍스트 ignore 파일 자동 생성 스크립트
 # 생성 배경: 프로젝트 파일 타입을 스캔하여 토큰 낭비 방지
 # 사용법:
 #   bash scripts/gen-ignore.sh            # 일반 실행 (없을 때만 생성)
@@ -157,14 +157,14 @@ JAVA
   done
 }
 
-# ── .claudeignore 블록 생성 ─────────────────────────────────────────────────
-# Claude가 읽지 않아도 되는 파일 → 토큰 절약
-make_claudeignore() {
+# ── AI 컨텍스트 ignore 블록 생성 ───────────────────────────────────────────
+# AI 도구가 읽지 않아도 되는 파일 → 토큰 절약
+make_aiignore() {
   local types=("$@")
 
   cat << 'BASE'
-# ── .claudeignore ────────────────────────────────────────────────────────────
-# Claude가 컨텍스트로 읽지 않을 파일 목록 (토큰 절약)
+# ── AI context ignore ────────────────────────────────────────────────────────
+# AI 클라이언트가 컨텍스트로 읽지 않을 파일 목록 (토큰 절약)
 # 규칙: 빌드 산출물·바이너리·대용량 자동생성 파일은 제외
 
 # ── Git 내부 ─────────────────────────────────────────────────────────────────
@@ -348,15 +348,19 @@ main() {
 
   # 컨텐츠 생성
   gitignore_content=$(make_gitignore "${detected_types[@]}")
-  claudeignore_content=$(make_claudeignore "${detected_types[@]}")
+  aiignore_content=$(make_aiignore "${detected_types[@]}")
 
   # 파일 쓰기
-  write_ignore_file ".gitignore"    "$gitignore_content"    ".gitignore"
-  write_ignore_file ".claudeignore" "$claudeignore_content" ".claudeignore"
+  write_ignore_file ".gitignore"      "$gitignore_content" ".gitignore"
+  write_ignore_file ".aiignore"       "$aiignore_content"  ".aiignore"
+  write_ignore_file ".claudeignore"   "$aiignore_content"  ".claudeignore"
+  write_ignore_file ".cursorignore"   "$aiignore_content"  ".cursorignore"
+  write_ignore_file ".codexignore"    "$aiignore_content"  ".codexignore"
+  write_ignore_file ".geminiignore"   "$aiignore_content"  ".geminiignore"
 
   if [ "$DRY_RUN" = "false" ]; then
     echo "[gen-ignore] 완료 ✓"
-    echo "   토큰 절약 팁: .claudeignore에 불필요한 디렉토리를 추가하세요"
+    echo "   토큰 절약 팁: .aiignore 또는 사용하는 클라이언트 ignore 파일에 불필요한 디렉토리를 추가하세요"
   fi
 }
 

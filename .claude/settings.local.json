@@ -11,7 +11,15 @@
       "Bash(bash -x ./scripts/garbage-collect.sh)",
       "Bash(echo \"grep -P exit: $?\")",
       "Bash(echo \"exit: $?\")",
-      "Bash(python3 -c ':*)"
+      "Bash(python3 -c ':*)",
+      "Read(//e/UnrealMCP/**)",
+      "Bash(python3)",
+      "Bash(find . -type f \\\\\\( -name \"*.py\" -o -name \"*.md\" -o -name \"*.sh\" -o -name \"*.json\" -o -name \"*.toml\" \\\\\\) ! -path \"*/.git/*\" ! -path \"*/__pycache__/*\" -exec wc -c {} +)",
+      "Bash(python3 /tmp/replace_korean_v2.py)",
+      "Bash(python3 /tmp/clean_all_korean.py)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(rm -f E:/harness-Auto-Create/.git/index.lock)"
     ]
   }
 }
